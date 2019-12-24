@@ -25,9 +25,13 @@ class App extends React.Component {
     type: 'Junior',
     data: [],
     average: 0,
+    empId: null,
+    name: null,
+    salary: null
   }
 
   componentDidMount() {
+    this.createNewEmployee = this.createNewEmployee.bind(this);
     this.renderTableComponent = this.renderTableComponent.bind(this);
     this.getHighestPaidEmployees = this.getHighestPaidEmployees.bind(this);
     this.getAverageSalaryType0 = this.getAverageSalaryType0.bind(this);
@@ -43,16 +47,16 @@ class App extends React.Component {
           <CardContent>
             <div style={{fontSize: 32, fontWeight: 100, marginBottom: 16}}>Add New Employee</div>
             <form>
-              <TextField name='emp_id' id="emp_id" label="Employee ID" variant="outlined" />&emsp;
-              <TextField name='name' id="name" label="Employee Name" variant="outlined" />&emsp;
-              <TextField name='salary' id="salary" label="Employee Salary" variant="outlined" />&emsp;
+              <TextField value={this.state.empId} onChange={ event => this.setState({ empId: event.target.value }) } name='emp_id' id="emp_id" label="Employee ID" variant="outlined" />&emsp;
+              <TextField value={this.state.name} onChange={ event => this.setState({ name: event.target.value }) } name='name' id="name" label="Employee Name" variant="outlined" />&emsp;
+              <TextField value={this.state.salary} onChange={ event => this.setState({ salary: event.target.value }) } name='salary' id="salary" label="Employee Salary" variant="outlined" />&emsp;
               <FormLabel component="legend" style={{marginTop: 16}}>Employee Type</FormLabel>
               <RadioGroup aria-label="Type" name={this.state.type} value={this.state.type} onChange={ (event) => this.setState({ type: event.target.value })}>
                 <FormControlLabel value={'Senior'} control={<Radio />} label="Senior" />
                 <FormControlLabel value={'Junior'} control={<Radio />} label="Junior" />
               </RadioGroup>
 
-              <Button variant="outlined" color="primary" style={{marginTop: 24}}>Create Employee</Button>&emsp;
+              <Button onClick={this.createNewEmployee} variant="outlined" color="primary" style={{marginTop: 24}}>Create Employee</Button>&emsp;
               <Button onClick={this.renderTableComponent} variant="outlined" color="primary" style={{marginTop: 24}}>List All Employess</Button>&emsp;
               <Button onClick={this.getHighestPaidEmployees} variant="outlined" color="primary" style={{marginTop: 24}}>Highest Paid Employees</Button>&emsp;
               <Button onClick={this.getAverageSalaryType0} variant="outlined" color="primary" style={{marginTop: 24}}>Average Salary of Type 0</Button>
@@ -92,6 +96,21 @@ class App extends React.Component {
         </Card>
       </Container>
     );
+  }
+
+  createNewEmployee() {
+    const postBody = {
+      emp_id: this.state.empId,
+      name: this.state.name,
+      salary: parseInt(this.state.salary),
+      type: this.state.type.toLowerCase()
+    };
+    axios.post('https://damp-chamber-13772.herokuapp.com/api/v1/employee', postBody)
+      .then(resp => {
+        alert('New employee created with Employee ID '+resp.data.data['emp_id']);
+        this.renderTableComponent();
+      })
+      .catch(err => console.log(err));
   }
 
   renderTableComponent() {
